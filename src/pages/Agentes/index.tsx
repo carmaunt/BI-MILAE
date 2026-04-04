@@ -3,9 +3,27 @@ import StatCard from "../../components/ui/StatCard";
 import RankingTable from "./components/RankingTable";
 import OcorrenciasFaccaoChart from "./components/OcorrenciasFaccaoChart";
 import OcorrenciasMesChart from "./components/OcorrenciasMesChart";
-import { getRankingAgentes, type AgenteStat } from "../../data/db";
+import {
+  getRankingAgentes,
+  getTotalMilae,
+  getTotalResistentes,
+  getMediaMensalResistentes,
+  getResistentesPorFaccao,
+  milaeRecords,
+  type AgenteStat,
+} from "../../data/db";
 
 const MESES_KEY = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"] as const;
+
+function getOcorrenciasPorMesGeral() {
+  const mapa: Record<string, number> = {};
+  milaeRecords.forEach((m) => {
+    const mesIdx = Number(m.data.slice(5, 7)) - 1;
+    const mesKey = MESES_KEY[mesIdx];
+    mapa[mesKey] = (mapa[mesKey] || 0) + 1;
+  });
+  return MESES_KEY.map((mes) => ({ mes, quantidade: mapa[mes] || 0 }));
+}
 
 function calcularDadosTela(agenteSelecionado: string | null, ranking: AgenteStat[]) {
   if (agenteSelecionado) {
@@ -23,30 +41,15 @@ function calcularDadosTela(agenteSelecionado: string | null, ranking: AgenteStat
     }
   }
 
-  const totalMilae = ranking.reduce((acc, a) => acc + a.ocorrencias, 0);
-  const totalResistentes = ranking.reduce((acc, a) => acc + a.resistentesTotal, 0);
-
-  const somaMensal = MESES_KEY.reduce((acc, mes) => {
-    acc[mes] = ranking.reduce((sum, a) => sum + a.mensal[mes], 0);
-    return acc;
-  }, {} as Record<string, number>);
-
-  const mesesComOcorrencia = Object.values(somaMensal).filter((v) => v > 0).length || 1;
-
-  const faccaoMap: Record<string, number> = {};
-  ranking.forEach((a) =>
-    a.faccoes.forEach((f) => {
-      faccaoMap[f.nome] = (faccaoMap[f.nome] || 0) + f.quantidade;
-    })
-  );
-
+  // Visão geral: totais diretos da tabela única — mesma fonte do Dashboard
+  const totalResistentes = getTotalResistentes();
   return {
     titulo: "Visão geral",
-    totalMilae,
+    totalMilae: getTotalMilae(),
     totalResistentes,
-    mediaMensalResistentes: (totalResistentes / mesesComOcorrencia).toFixed(2),
-    ocorrenciasPorMesData: MESES_KEY.map((mes) => ({ mes, quantidade: somaMensal[mes] })),
-    ocorrenciasPorFaccaoData: Object.entries(faccaoMap).map(([nome, quantidade]) => ({ nome, quantidade })),
+    mediaMensalResistentes: String(getMediaMensalResistentes()),
+    ocorrenciasPorMesData: getOcorrenciasPorMesGeral(),
+    ocorrenciasPorFaccaoData: getResistentesPorFaccao(),
   };
 }
 
