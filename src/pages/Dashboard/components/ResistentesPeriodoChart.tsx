@@ -1,12 +1,14 @@
 import { Area, AreaChart, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
-import { periodoData } from "../../../data/milaeData";
+import { getResistentesPorPeriodo } from "../../../data/db";
 import Panel from "../../../components/ui/Panel";
 
 export default function ResistentesPeriodoChart() {
+  const data = getResistentesPorPeriodo();
+
   return (
     <Panel title="Resistentes por período">
       <ResponsiveContainer width="100%" height={280}>
-        <AreaChart data={periodoData} margin={{ top: 10, right: 20, left: 0, bottom: 10 }}>
+        <AreaChart data={data} margin={{ top: 10, right: 20, left: 0, bottom: 10 }}>
           <XAxis dataKey="periodo" />
           <YAxis />
           <Tooltip

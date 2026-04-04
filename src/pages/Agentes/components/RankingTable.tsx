@@ -1,30 +1,14 @@
 import { thStyle, tdStyle } from "../../../styles/common";
-import type { RankingItem } from "../../../types";
+import type { AgenteStat } from "../../../data/db";
 
 type RankingTableProps = {
-  rankingData: RankingItem[];
+  rankingData: AgenteStat[];
   agenteSelecionado: string | null;
   onSelect: (nome: string) => void;
   onClearFilter: () => void;
 };
 
 export default function RankingTable({ rankingData, agenteSelecionado, onSelect, onClearFilter }: RankingTableProps) {
-  const headerRight = agenteSelecionado ? (
-    <button
-      onClick={onClearFilter}
-      style={{
-        border: "none",
-        background: "#111827",
-        color: "#fff",
-        padding: "8px 12px",
-        borderRadius: "8px",
-        cursor: "pointer",
-      }}
-    >
-      Limpar filtro
-    </button>
-  ) : null;
-
   return (
     <div
       style={{
@@ -36,7 +20,21 @@ export default function RankingTable({ rankingData, agenteSelecionado, onSelect,
     >
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
         <h2 style={{ margin: 0, fontSize: "18px", color: "#111827" }}>Ranking MILAE</h2>
-        {headerRight}
+        {agenteSelecionado && (
+          <button
+            onClick={onClearFilter}
+            style={{
+              border: "none",
+              background: "#111827",
+              color: "#fff",
+              padding: "8px 12px",
+              borderRadius: "8px",
+              cursor: "pointer",
+            }}
+          >
+            Limpar filtro
+          </button>
+        )}
       </div>
 
       <div style={{ maxHeight: "300px", overflowY: "auto" }}>
@@ -44,6 +42,7 @@ export default function RankingTable({ rankingData, agenteSelecionado, onSelect,
           <thead>
             <tr style={{ textAlign: "left", borderBottom: "1px solid #e5e7eb" }}>
               <th style={thStyle}>PM</th>
+              <th style={thStyle}>OPM</th>
               <th style={thStyle}>Ocorrências</th>
             </tr>
           </thead>
@@ -74,6 +73,7 @@ export default function RankingTable({ rankingData, agenteSelecionado, onSelect,
                       {item.nome}
                     </button>
                   </td>
+                  <td style={{ ...tdStyle, color: "#6b7280", fontSize: "13px" }}>{item.opm}</td>
                   <td style={tdStyle}>{item.ocorrencias}</td>
                 </tr>
               );

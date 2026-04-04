@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet.heat";
+import { getHeatPoints } from "../../data/db";
 
 export default function MilaeHeatMap() {
   const mapRef = useRef<HTMLDivElement | null>(null);
@@ -9,29 +10,22 @@ export default function MilaeHeatMap() {
   useEffect(() => {
     if (!mapRef.current) return;
 
-    const map = L.map(mapRef.current, {
-      center: [-12.97, -38.5],
-      zoom: 12,
-    });
+    const map = L.map(mapRef.current, { center: [-12.97, -38.5], zoom: 12 });
 
     const normal = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: "&copy; OpenStreetMap contributors",
     });
-
     const relevo = L.tileLayer("https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png", {
       attribution: "&copy; OpenTopoMap contributors",
     });
-
     const sateliteBase = L.tileLayer(
       "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
       { attribution: "Tiles &copy; Esri", maxZoom: 19 }
     );
-
     const sateliteRuas = L.tileLayer(
       "https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}",
       { attribution: "Labels &copy; Esri", maxZoom: 19, opacity: 0.9 }
     );
-
     const sateliteNomes = L.tileLayer(
       "https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
       { attribution: "Places &copy; Esri", maxZoom: 19, opacity: 0.9 }
@@ -39,23 +33,11 @@ export default function MilaeHeatMap() {
 
     const hibrido = L.layerGroup([sateliteBase, sateliteRuas, sateliteNomes]);
     hibrido.addTo(map);
-
     L.control
       .layers({ "Mapa padrão": normal, Relevo: relevo, Satélite: sateliteBase, Híbrido: hibrido })
       .addTo(map);
 
-    const heatPoints: [number, number, number][] = [
-      [-12.9714, -38.5014, 1.0],
-      [-12.9500, -38.4800, 0.9],
-      [-12.9900, -38.4700, 0.8],
-      [-12.8200, -38.3200, 0.7],
-      [-12.7300, -38.3300, 0.6],
-      [-12.6500, -38.3200, 0.5],
-      [-12.6700, -38.4800, 0.6],
-      [-12.7400, -38.4500, 0.5],
-    ];
-
-    const heatLayer = (L as any).heatLayer(heatPoints, {
+    const heatLayer = (L as any).heatLayer(getHeatPoints(), {
       radius: 45,
       blur: 30,
       maxZoom: 17,
@@ -66,9 +48,7 @@ export default function MilaeHeatMap() {
     heatLayer.addTo(map);
     map.setView([-12.97, -38.5], 11);
 
-    return () => {
-      map.remove();
-    };
+    return () => { map.remove(); };
   }, []);
 
   return (
