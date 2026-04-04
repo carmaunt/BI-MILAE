@@ -17,12 +17,41 @@ A React + Vite analytics dashboard (Painel analítico) for MILAE data visualizat
 - **Excel Export**: ExcelJS + FileSaver
 
 ## Project Structure
-- `src/App.tsx` — Main application with routing and page components
-- `src/MilaeHeatMap.tsx` — Heatmap component using Leaflet
-- `src/main.tsx` — Entry point
-- `src/theme.ts` — MUI theme configuration
-- `public/` — Static assets
-- `index.html` — HTML entry point
+```
+src/
+  types/
+    index.ts              # Shared TypeScript types
+  data/
+    milaeData.ts          # MILAE, chart, faccao, OPM, periodo data
+    rankingData.ts        # Agent ranking data
+  styles/
+    common.ts             # Shared inline style objects
+  components/
+    layout/
+      Sidebar.tsx         # Navigation sidebar
+    ui/
+      StatCard.tsx        # Metric card component
+      Panel.tsx           # Chart/content panel wrapper
+    map/
+      MilaeHeatMap.tsx    # Leaflet heatmap component
+  pages/
+    Dashboard/
+      index.tsx           # Dashboard page
+      components/
+        EvolucaoCasosChart.tsx
+        ResistentesFaccaoChart.tsx
+        ResistentesPeriodoChart.tsx
+        ResistentesOpmChart.tsx
+        HeatMapPanel.tsx
+    Agentes/
+      index.tsx           # Agentes page
+      components/
+        RankingTable.tsx
+        OcorrenciasFaccaoChart.tsx
+        OcorrenciasMesChart.tsx
+  App.tsx                 # Root layout + page routing
+  main.tsx                # Entry point
+```
 
 ## Development
 - Run: `npm run dev` (port 5000)
