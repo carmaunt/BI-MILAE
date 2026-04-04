@@ -1,10 +1,11 @@
 import { Bar, BarChart, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
-import { getResistentesPorFaccao } from "../../../data/db";
 import Panel from "../../../components/ui/Panel";
 
-export default function ResistentesFaccaoChart() {
-  const data = getResistentesPorFaccao();
+type Props = {
+  data: { nome: string; quantidade: number }[];
+};
 
+export default function ResistentesFaccaoChart({ data }: Props) {
   return (
     <Panel title="Resistentes por facção">
       <ResponsiveContainer width="100%" height={280}>

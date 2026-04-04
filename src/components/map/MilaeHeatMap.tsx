@@ -2,9 +2,12 @@ import { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet.heat";
-import { getHeatPoints } from "../../data/db";
 
-export default function MilaeHeatMap() {
+type Props = {
+  heatPoints: [number, number, number][];
+};
+
+export default function MilaeHeatMap({ heatPoints }: Props) {
   const mapRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -37,19 +40,17 @@ export default function MilaeHeatMap() {
       .layers({ "Mapa padrão": normal, Relevo: relevo, Satélite: sateliteBase, Híbrido: hibrido })
       .addTo(map);
 
-    const heatLayer = (L as any).heatLayer(getHeatPoints(), {
+    (L as any).heatLayer(heatPoints, {
       radius: 45,
       blur: 30,
       maxZoom: 17,
       minOpacity: 0.5,
       gradient: { 0.2: "#fef08a", 0.4: "#f59e0b", 0.7: "#f97316", 1.0: "#dc2626" },
-    });
+    }).addTo(map);
 
-    heatLayer.addTo(map);
     map.setView([-12.97, -38.5], 11);
-
     return () => { map.remove(); };
-  }, []);
+  }, [heatPoints]);
 
   return (
     <div

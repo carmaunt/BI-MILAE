@@ -1,3 +1,4 @@
+import { useMilaeRecords } from "../../hooks/useMilaeRecords";
 import StatCard from "../../components/ui/StatCard";
 import EvolucaoCasosChart from "./components/EvolucaoCasosChart";
 import ResistentesFaccaoChart from "./components/ResistentesFaccaoChart";
@@ -9,9 +10,26 @@ import {
   getTotalResistentes,
   getMediaMensalResistentes,
   getMediaAgentesPorMilae,
+  getEvolucaoMensal,
+  getResistentesPorFaccao,
+  getResistentesPorPeriodo,
+  getResistentesPorOpm,
+  getHeatPoints,
 } from "../../data/db";
 
 export default function DashboardPage() {
+  const { data: records = [], isLoading } = useMilaeRecords();
+
+  const evolucao    = getEvolucaoMensal(records);
+  const faccaoData  = getResistentesPorFaccao(records);
+  const periodoData = getResistentesPorPeriodo(records);
+  const opmData     = getResistentesPorOpm(records);
+  const heatPoints  = getHeatPoints(records);
+
+  if (isLoading) {
+    return <div style={{ padding: 24, color: "#6b7280" }}>Carregando dados...</div>;
+  }
+
   return (
     <>
       <header style={{ marginBottom: "24px" }}>
@@ -27,28 +45,28 @@ export default function DashboardPage() {
           marginBottom: "24px",
         }}
       >
-        <StatCard title="Total de MILAE"                value={getTotalMilae()} />
-        <StatCard title="Total de resistentes"          value={getTotalResistentes()} />
-        <StatCard title="Média mensal de resistentes"   value={getMediaMensalResistentes()} />
-        <StatCard title="Média de agentes por MILAE"    value={getMediaAgentesPorMilae()} />
+        <StatCard title="Total de MILAE"              value={getTotalMilae(records)} />
+        <StatCard title="Total de resistentes"        value={getTotalResistentes(records)} />
+        <StatCard title="Média mensal de resistentes" value={getMediaMensalResistentes(records)} />
+        <StatCard title="Média de agentes por MILAE"  value={getMediaAgentesPorMilae(records)} />
       </section>
 
       <section
         style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "16px", marginBottom: "24px" }}
       >
-        <EvolucaoCasosChart />
-        <ResistentesFaccaoChart />
+        <EvolucaoCasosChart data={evolucao.data} anos={evolucao.anos} />
+        <ResistentesFaccaoChart data={faccaoData} />
       </section>
 
       <section
         style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "24px" }}
       >
-        <ResistentesPeriodoChart />
-        <ResistentesOpmChart />
+        <ResistentesPeriodoChart data={periodoData} />
+        <ResistentesOpmChart data={opmData} />
       </section>
 
       <section style={{ display: "grid", gridTemplateColumns: "1fr", gap: "16px" }}>
-        <HeatMapPanel />
+        <HeatMapPanel heatPoints={heatPoints} />
       </section>
     </>
   );

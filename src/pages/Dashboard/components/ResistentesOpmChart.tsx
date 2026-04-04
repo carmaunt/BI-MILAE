@@ -1,10 +1,11 @@
 import { Bar, BarChart, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
-import { getResistentesPorOpm } from "../../../data/db";
 import Panel from "../../../components/ui/Panel";
 
-export default function ResistentesOpmChart() {
-  const data = getResistentesPorOpm();
+type Props = {
+  data: { nome: string; quantidade: number }[];
+};
 
+export default function ResistentesOpmChart({ data }: Props) {
   return (
     <Panel title="Resistentes por OPM">
       <ResponsiveContainer width="100%" height={280}>

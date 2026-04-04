@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useMilaeRecords } from "../../hooks/useMilaeRecords";
 import StatCard from "../../components/ui/StatCard";
 import RankingTable from "./components/RankingTable";
 import OcorrenciasFaccaoChart from "./components/OcorrenciasFaccaoChart";
@@ -9,54 +10,57 @@ import {
   getTotalResistentes,
   getMediaMensalResistentes,
   getResistentesPorFaccao,
-  milaeRecords,
+  getOcorrenciasPorMes,
   type AgenteStat,
+  type MilaeRecord,
 } from "../../data/db";
 
 const MESES_KEY = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"] as const;
 
-function getOcorrenciasPorMesGeral() {
-  const mapa: Record<string, number> = {};
-  milaeRecords.forEach((m) => {
-    const mesIdx = Number(m.data.slice(5, 7)) - 1;
-    const mesKey = MESES_KEY[mesIdx];
-    mapa[mesKey] = (mapa[mesKey] || 0) + 1;
-  });
-  return MESES_KEY.map((mes) => ({ mes, quantidade: mapa[mes] || 0 }));
-}
-
-function calcularDadosTela(agenteSelecionado: string | null, ranking: AgenteStat[]) {
+function calcularDadosTela(
+  agenteSelecionado: string | null,
+  ranking: AgenteStat[],
+  records: MilaeRecord[]
+) {
   if (agenteSelecionado) {
     const agente = ranking.find((a) => a.nome === agenteSelecionado);
     if (agente) {
       const mesesComOcorrencia = Object.values(agente.mensal).filter((v) => v > 0).length || 1;
       return {
-        titulo: agente.nome,
-        totalMilae: agente.ocorrencias,
-        totalResistentes: agente.resistentesTotal,
-        mediaMensalResistentes: (agente.resistentesTotal / mesesComOcorrencia).toFixed(2),
-        ocorrenciasPorMesData: MESES_KEY.map((mes) => ({ mes, quantidade: agente.mensal[mes] })),
+        titulo:                  agente.nome,
+        totalMilae:              agente.ocorrencias,
+        totalResistentes:        agente.resistentesTotal,
+        mediaMensalResistentes:  (agente.resistentesTotal / mesesComOcorrencia).toFixed(2),
+        ocorrenciasPorMesData:   MESES_KEY.map((mes) => ({ mes, quantidade: agente.mensal[mes] })),
         ocorrenciasPorFaccaoData: agente.faccoes,
       };
     }
   }
 
-  // Visão geral: totais diretos da tabela única — mesma fonte do Dashboard
-  const totalResistentes = getTotalResistentes();
+  // Visão geral — usa as mesmas funções derivadas do Dashboard (fonte única)
   return {
-    titulo: "Visão geral",
-    totalMilae: getTotalMilae(),
-    totalResistentes,
-    mediaMensalResistentes: String(getMediaMensalResistentes()),
-    ocorrenciasPorMesData: getOcorrenciasPorMesGeral(),
-    ocorrenciasPorFaccaoData: getResistentesPorFaccao(),
+    titulo:                  "Visão geral",
+    totalMilae:              getTotalMilae(records),
+    totalResistentes:        getTotalResistentes(records),
+    mediaMensalResistentes:  String(getMediaMensalResistentes(records)),
+    ocorrenciasPorMesData:   getOcorrenciasPorMes(records),
+    ocorrenciasPorFaccaoData: getResistentesPorFaccao(records),
   };
 }
 
 export default function AgentesPage() {
+  const { data: records = [], isLoading } = useMilaeRecords();
   const [agenteSelecionado, setAgenteSelecionado] = useState<string | null>(null);
-  const ranking = useMemo(() => getRankingAgentes(), []);
-  const dadosTela = useMemo(() => calcularDadosTela(agenteSelecionado, ranking), [agenteSelecionado, ranking]);
+
+  const ranking    = useMemo(() => getRankingAgentes(records), [records]);
+  const dadosTela  = useMemo(
+    () => calcularDadosTela(agenteSelecionado, ranking, records),
+    [agenteSelecionado, ranking, records]
+  );
+
+  if (isLoading) {
+    return <div style={{ padding: 24, color: "#6b7280" }}>Carregando dados...</div>;
+  }
 
   return (
     <>
@@ -75,9 +79,9 @@ export default function AgentesPage() {
           marginBottom: "24px",
         }}
       >
-        <StatCard title="Total de MILAE"                value={dadosTela.totalMilae} />
-        <StatCard title="Total de resistentes"          value={dadosTela.totalResistentes} />
-        <StatCard title="Média mensal de resistentes"   value={dadosTela.mediaMensalResistentes} />
+        <StatCard title="Total de MILAE"              value={dadosTela.totalMilae} />
+        <StatCard title="Total de resistentes"        value={dadosTela.totalResistentes} />
+        <StatCard title="Média mensal de resistentes" value={dadosTela.mediaMensalResistentes} />
       </section>
 
       <section style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginTop: "16px" }}>

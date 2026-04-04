@@ -1,10 +1,11 @@
 import { Area, AreaChart, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
-import { getResistentesPorPeriodo } from "../../../data/db";
 import Panel from "../../../components/ui/Panel";
 
-export default function ResistentesPeriodoChart() {
-  const data = getResistentesPorPeriodo();
+type Props = {
+  data: { periodo: string; quantidade: number }[];
+};
 
+export default function ResistentesPeriodoChart({ data }: Props) {
   return (
     <Panel title="Resistentes por período">
       <ResponsiveContainer width="100%" height={280}>

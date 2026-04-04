@@ -4,13 +4,17 @@ import Panel from "../../../components/ui/Panel";
 const legendItems = [
   { label: "Baixa", color: "#fef08a" },
   { label: "Média", color: "#f59e0b" },
-  { label: "Alta", color: "#dc2626" },
+  { label: "Alta",  color: "#dc2626" },
 ];
 
-export default function HeatMapPanel() {
+type Props = {
+  heatPoints: [number, number, number][];
+};
+
+export default function HeatMapPanel({ heatPoints }: Props) {
   return (
     <Panel title="Mancha de calor de incidência de MILAE">
-      <MilaeHeatMap />
+      <MilaeHeatMap heatPoints={heatPoints} />
       <div
         style={{
           display: "flex",

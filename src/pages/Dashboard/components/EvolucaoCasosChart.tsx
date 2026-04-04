@@ -1,5 +1,4 @@
 import { Line, LineChart, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import { getEvolucaoMensal } from "../../../data/db";
 import Panel from "../../../components/ui/Panel";
 
 const CORES: Record<number, string> = {
@@ -9,9 +8,12 @@ const CORES: Record<number, string> = {
   2027: "#d1d5db",
 };
 
-export default function EvolucaoCasosChart() {
-  const { data, anos } = getEvolucaoMensal();
+type Props = {
+  data: Record<string, unknown>[];
+  anos: number[];
+};
 
+export default function EvolucaoCasosChart({ data, anos }: Props) {
   return (
     <Panel title="Evolução dos casos">
       <div style={{ width: "100%", overflowX: "auto", overflowY: "hidden" }}>

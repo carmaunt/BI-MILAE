@@ -1,63 +1,78 @@
 # BI-MILAE
 
 ## Overview
-A React + Vite analytics dashboard (Painel analítico) for MILAE data visualization. The app displays dashboards, agent data, heatmaps, and various analytical charts.
+Painel analítico de ocorrências MILAE (Morte em Intervenção de Agente do Estado) para análise de dados policiais em Salvador-BA.
+
+**Domínio:**
+- **MILAE**: ocorrência policial com resistente(s) morto(s)
+- **Resistente**: criminoso morto — possui facção e localização (lat/lng)
+- **Agente**: policial de serviço — possui nome, matrícula e OPM (unidade de origem)
 
 ## Tech Stack
 - **Framework**: React 19 + TypeScript
 - **Build Tool**: Vite 8
-- **UI Library**: MUI (Material UI) v7
-- **Routing**: React Router DOM v7
-- **State Management**: Zustand
-- **Data Fetching**: TanStack React Query + Axios
+- **Dados**: TanStack React Query + Axios
 - **Charts**: Recharts
-- **Maps**: Leaflet + React Leaflet (with heatmap support)
-- **Forms**: React Hook Form + Zod
-- **Real-time**: Socket.io client
-- **Excel Export**: ExcelJS + FileSaver
+- **Maps**: Leaflet + leaflet.heat
+- **UI**: MUI v7 (instalado, disponível para uso)
+- **Forms**: React Hook Form + Zod (disponível)
 
-## Project Structure
+## Arquitetura de Dados
+
 ```
 src/
-  types/
-    index.ts              # Shared TypeScript types
   data/
-    milaeData.ts          # MILAE, chart, faccao, OPM, periodo data
-    rankingData.ts        # Agent ranking data
-  styles/
-    common.ts             # Shared inline style objects
+    db.ts          ← Tipos (MilaeRecord, Agente, Resistente) + funções derivadas puras
+    mockData.ts    ← Dados mock para desenvolvimento (sem backend)
+  services/
+    milaeApi.ts    ← Chamadas HTTP ao backend (axios)
+  hooks/
+    useMilaeRecords.ts ← Hook React Query (mock ↔ API real via VITE_API_URL)
+```
+
+### Fluxo de dados
+1. Componentes chamam `useMilaeRecords()` — única fonte de dados
+2. O hook retorna `MilaeRecord[]` (mock ou API, conforme env)
+3. Funções derivadas puras em `db.ts` calculam todos os cards/gráficos
+4. Para ativar o backend real: definir `VITE_API_URL=https://backend.com`
+
+### Contrato do backend (MilaeRecord)
+```typescript
+{
+  id:          number
+  data:        string      // "YYYY-MM-DD"
+  hora:        string      // "HH:MM"
+  local:       string      // endereço textual do confronto
+  lat:         number      // latitude do local do confronto
+  lng:         number      // longitude do local do confronto
+  agentes:     { nome, matricula, opm, vtr? }[]
+  resistentes: { faccao, lat, lng }[]
+}
+```
+
+## Estrutura de Componentes
+
+```
+src/
   components/
-    layout/
-      Sidebar.tsx         # Navigation sidebar
-    ui/
-      StatCard.tsx        # Metric card component
-      Panel.tsx           # Chart/content panel wrapper
-    map/
-      MilaeHeatMap.tsx    # Leaflet heatmap component
+    layout/Sidebar.tsx
+    ui/StatCard.tsx, Panel.tsx
+    map/MilaeHeatMap.tsx    ← recebe heatPoints[] como prop
   pages/
-    Dashboard/
-      index.tsx           # Dashboard page
-      components/
-        EvolucaoCasosChart.tsx
-        ResistentesFaccaoChart.tsx
-        ResistentesPeriodoChart.tsx
-        ResistentesOpmChart.tsx
-        HeatMapPanel.tsx
-    Agentes/
-      index.tsx           # Agentes page
-      components/
-        RankingTable.tsx
-        OcorrenciasFaccaoChart.tsx
-        OcorrenciasMesChart.tsx
-  App.tsx                 # Root layout + page routing
-  main.tsx                # Entry point
+    Dashboard/index.tsx     ← usa useMilaeRecords(), passa dados derivados como props
+      components/EvolucaoCasosChart, ResistentesFaccao, Periodo, Opm, HeatMapPanel
+    Agentes/index.tsx       ← usa useMilaeRecords(), mesma fonte que Dashboard
+      components/RankingTable, OcorrenciasFaccao, OcorrenciasMes
+  App.tsx
+  main.tsx                  ← QueryClientProvider wrapping
 ```
 
 ## Development
 - Run: `npm run dev` (port 5000)
 - Build: `npm run build`
+- Mock data: ativo por padrão (sem VITE_API_URL)
 
 ## Deployment
 - Type: Static site
-- Build command: `npm run build`
-- Output directory: `dist`
+- Build: `npm run build`
+- Output: `dist/`
