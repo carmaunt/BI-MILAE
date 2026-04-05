@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { createMilaeRecord } from "../../services/milaeApi";
+import { useToast } from "../../hooks/useToast";
 import {
   cadastroMilaeSchema,
   faccaoOptions,
@@ -70,6 +71,7 @@ const defaultValues: CadastroMilaeFormInput = {
 
 export default function CadastroPage() {
   const queryClient = useQueryClient();
+  const toast = useToast();
 
   const {
     register,
@@ -97,10 +99,13 @@ export default function CadastroPage() {
     onSuccess: async () => {
       reset(defaultValues);
       await queryClient.invalidateQueries({ queryKey: ["milae-records"] });
-      alert("Cadastro salvo com sucesso.");
+      toast.sucesso("Cadastro salvo com sucesso!");
     },
-    onError: () => {
-      alert("Erro ao salvar cadastro.");
+    onError: (err: unknown) => {
+      const msg =
+        (err as { response?: { data?: { error?: string } } })?.response?.data?.error
+        ?? "Erro ao salvar o cadastro. Tente novamente.";
+      toast.erro(msg);
     },
   });
 

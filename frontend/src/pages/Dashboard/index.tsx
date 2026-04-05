@@ -1,5 +1,6 @@
 import { useMilaeRecords } from "../../hooks/useMilaeRecords";
 import StatCard from "../../components/ui/StatCard";
+import ErrorBanner from "../../components/ui/ErrorBanner";
 import EvolucaoCasosChart from "./components/EvolucaoCasosChart";
 import ResistentesFaccaoChart from "./components/ResistentesFaccaoChart";
 import ResistentesPeriodoChart from "./components/ResistentesPeriodoChart";
@@ -18,7 +19,7 @@ import {
 } from "../../data/db";
 
 export default function DashboardPage() {
-  const { data: records = [], isLoading } = useMilaeRecords();
+  const { data: records = [], isLoading, isError, refetch } = useMilaeRecords();
 
   const evolucao    = getEvolucaoMensal(records);
   const faccaoData  = getResistentesPorFaccao(records);
@@ -36,6 +37,15 @@ export default function DashboardPage() {
         <h1 style={{ margin: 0, fontSize: "28px", color: "#111827" }}>Dashboard</h1>
         <p style={{ marginTop: "8px", color: "#6b7280" }}>Visão geral dos dados de MILAE</p>
       </header>
+
+      {isError && (
+        <div style={{ marginBottom: "24px" }}>
+          <ErrorBanner
+            mensagem="Não foi possível carregar os dados do servidor. Verifique sua conexão e tente novamente."
+            onRetry={() => refetch()}
+          />
+        </div>
+      )}
 
       <section
         style={{

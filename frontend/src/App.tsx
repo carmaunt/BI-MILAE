@@ -6,6 +6,7 @@ import AgentesPage from "./pages/Agentes";
 import UsuariosPage from "./pages/Usuarios";
 import LoginPage from "./pages/Login";
 import RegistroPage from "./pages/Registro";
+import PageErrorBoundary from "./components/ui/PageErrorBoundary";
 import { useAuthStore } from "./store/authStore";
 import type { Page } from "./types";
 
@@ -30,10 +31,12 @@ export default function App() {
       <Sidebar activePage={activePage} onNavigate={setActivePage} isAdmin={isAdmin} />
 
       <main style={{ flex: 1, background: "#f3f4f6", padding: "24px" }}>
-        {activePage === "dashboard" && <DashboardPage />}
-        {activePage === "agentes" && <AgentesPage />}
-        {activePage === "cadastro" && isAdmin && <CadastroPage />}
-        {activePage === "usuarios" && isAdmin && <UsuariosPage />}
+        <PageErrorBoundary>
+          {activePage === "dashboard" && <DashboardPage />}
+          {activePage === "agentes" && <AgentesPage />}
+          {activePage === "cadastro" && isAdmin && <CadastroPage />}
+          {activePage === "usuarios" && isAdmin && <UsuariosPage />}
+        </PageErrorBoundary>
       </main>
     </div>
   );

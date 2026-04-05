@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useMilaeRecords } from "../../hooks/useMilaeRecords";
 import StatCard from "../../components/ui/StatCard";
+import ErrorBanner from "../../components/ui/ErrorBanner";
 import RankingTable from "./components/RankingTable";
 import OcorrenciasFaccaoChart from "./components/OcorrenciasFaccaoChart";
 import OcorrenciasMesChart from "./components/OcorrenciasMesChart";
@@ -37,7 +38,6 @@ function calcularDadosTela(
     }
   }
 
-  // Visão geral — usa as mesmas funções derivadas do Dashboard (fonte única)
   return {
     titulo:                  "Visão geral",
     totalMilae:              getTotalMilae(records),
@@ -49,7 +49,7 @@ function calcularDadosTela(
 }
 
 export default function AgentesPage() {
-  const { data: records = [], isLoading } = useMilaeRecords();
+  const { data: records = [], isLoading, isError, refetch } = useMilaeRecords();
   const [agenteSelecionado, setAgenteSelecionado] = useState<string | null>(null);
 
   const ranking    = useMemo(() => getRankingAgentes(records), [records]);
@@ -60,6 +60,20 @@ export default function AgentesPage() {
 
   if (isLoading) {
     return <div style={{ padding: 24, color: "#6b7280" }}>Carregando dados...</div>;
+  }
+
+  if (isError) {
+    return (
+      <>
+        <header style={{ marginBottom: "24px" }}>
+          <h1 style={{ margin: 0, fontSize: "28px", color: "#111827" }}>Agentes</h1>
+        </header>
+        <ErrorBanner
+          mensagem="Não foi possível carregar os dados dos agentes. Verifique sua conexão e tente novamente."
+          onRetry={() => refetch()}
+        />
+      </>
+    );
   }
 
   return (
