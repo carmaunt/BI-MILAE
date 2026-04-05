@@ -67,10 +67,11 @@ export default function MilaeHeatMap({ heatPoints }: Props) {
     if (!map) return;
 
     const heatLayer = (L as any).heatLayer(heatPoints, {
-      radius: 18,
-      blur: 12,
+      radius: 35,
+      blur: 25,
       maxZoom: 18,
-      minOpacity: 0.35,
+      max: 1.0,
+      minOpacity: 0.45,
       gradient: {
         0.2: "#fef08a",
         0.45: "#f59e0b",
@@ -79,21 +80,8 @@ export default function MilaeHeatMap({ heatPoints }: Props) {
       },
     }).addTo(map);
 
-    const debugPoints = L.layerGroup(
-      heatPoints.map(([lat, lng]) =>
-        L.circleMarker([lat, lng], {
-          radius: 4,
-          weight: 1,
-          color: "#111827",
-          fillColor: "#ffffff",
-          fillOpacity: 0.9,
-        })
-      )
-    ).addTo(map);
-
     return () => {
       map.removeLayer(heatLayer);
-      map.removeLayer(debugPoints);
     };
   }, [heatPoints]);
 
