@@ -45,10 +45,10 @@ export default function RegistroPage({ onVoltar }: Props) {
       <div style={wrapperStyle}>
         <div style={cardStyle}>
           <div style={{ textAlign: "center", marginBottom: "24px" }}>
-            <div style={{ fontSize: "40px", marginBottom: "12px" }}>✅</div>
-            <h2 style={{ margin: 0, fontSize: "20px", color: "#111827" }}>Conta criada!</h2>
+            <div style={{ fontSize: "40px", marginBottom: "12px" }}>⏳</div>
+            <h2 style={{ margin: 0, fontSize: "20px", color: "#111827" }}>Solicitação enviada!</h2>
             <p style={{ margin: "8px 0 0", color: "#6b7280", fontSize: "14px" }}>
-              Sua conta foi criada como <strong>Visualizador</strong>. Agora você já pode fazer login.
+              Sua conta está <strong>aguardando aprovação</strong> do administrador. Você receberá acesso assim que for aprovado.
             </p>
           </div>
           <button onClick={onVoltar} style={btnPrimaryStyle}>

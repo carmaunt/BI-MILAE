@@ -1,6 +1,8 @@
+import { useEffect, useState } from "react";
 import type { Page } from "../../types";
 import { getMenuButtonStyle } from "../../styles/common";
 import { useAuthStore } from "../../store/authStore";
+import { fetchUsuarios } from "../../services/authApi";
 
 type SidebarProps = {
   activePage: Page;
@@ -9,7 +11,15 @@ type SidebarProps = {
 };
 
 export default function Sidebar({ activePage, onNavigate, isAdmin }: SidebarProps) {
-  const { user, logout } = useAuthStore();
+  const { user, token, logout } = useAuthStore();
+  const [pendentes, setPendentes] = useState(0);
+
+  useEffect(() => {
+    if (!isAdmin || !token) return;
+    fetchUsuarios(token)
+      .then((list) => setPendentes(list.filter((u) => u.status === "PENDENTE").length))
+      .catch(() => {});
+  }, [isAdmin, token, activePage]);
 
   return (
     <aside
@@ -43,6 +53,20 @@ export default function Sidebar({ activePage, onNavigate, isAdmin }: SidebarProp
             onClick={() => onNavigate("cadastro")}
           >
             Cadastro
+          </button>
+        )}
+
+        {isAdmin && (
+          <button
+            style={{ ...getMenuButtonStyle(activePage === "usuarios"), display: "flex", justifyContent: "space-between", alignItems: "center" }}
+            onClick={() => onNavigate("usuarios")}
+          >
+            <span>Usuários</span>
+            {pendentes > 0 && (
+              <span style={{ background: "#f59e0b", color: "#fff", borderRadius: "999px", fontSize: "11px", fontWeight: 700, padding: "2px 8px", minWidth: "20px", textAlign: "center" }}>
+                {pendentes}
+              </span>
+            )}
           </button>
         )}
       </nav>

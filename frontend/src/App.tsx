@@ -3,6 +3,7 @@ import { useState } from "react";
 import Sidebar from "./components/layout/Sidebar";
 import DashboardPage from "./pages/Dashboard";
 import AgentesPage from "./pages/Agentes";
+import UsuariosPage from "./pages/Usuarios";
 import LoginPage from "./pages/Login";
 import RegistroPage from "./pages/Registro";
 import { useAuthStore } from "./store/authStore";
@@ -32,6 +33,7 @@ export default function App() {
         {activePage === "dashboard" && <DashboardPage />}
         {activePage === "agentes" && <AgentesPage />}
         {activePage === "cadastro" && isAdmin && <CadastroPage />}
+        {activePage === "usuarios" && isAdmin && <UsuariosPage />}
       </main>
     </div>
   );

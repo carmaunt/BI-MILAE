@@ -27,10 +27,10 @@ router.post("/registrar", async (req, res) => {
 
   const hash = await bcrypt.hash(senha, 10);
   await prisma.user.create({
-    data: { nome, email, senha: hash, role: "VISUALIZADOR" },
+    data: { nome, email, senha: hash, role: "VISUALIZADOR", status: "PENDENTE" },
   });
 
-  res.status(201).json({ message: "Conta criada com sucesso. Faça login para continuar." });
+  res.status(201).json({ message: "Solicitação enviada! Aguarde a aprovação do administrador para acessar o sistema." });
 });
 
 router.post("/login", async (req, res) => {
@@ -43,8 +43,18 @@ router.post("/login", async (req, res) => {
 
   const user = await prisma.user.findUnique({ where: { email } });
 
-  if (!user || !user.ativo) {
+  if (!user) {
     res.status(401).json({ error: "Credenciais inválidas." });
+    return;
+  }
+
+  if (user.status === "PENDENTE") {
+    res.status(403).json({ error: "Sua conta está aguardando aprovação do administrador." });
+    return;
+  }
+
+  if (user.status === "INATIVO") {
+    res.status(403).json({ error: "Sua conta foi desativada. Entre em contato com o administrador." });
     return;
   }
 
@@ -70,15 +80,29 @@ router.post("/login", async (req, res) => {
 router.get("/me", requireAuth, async (req: AuthRequest, res) => {
   const user = await prisma.user.findUnique({
     where: { id: req.user!.userId },
-    select: { id: true, nome: true, email: true, role: true, ativo: true },
+    select: { id: true, nome: true, email: true, role: true, status: true },
   });
 
-  if (!user || !user.ativo) {
-    res.status(401).json({ error: "Usuário não encontrado." });
+  if (!user || user.status !== "ATIVO") {
+    res.status(401).json({ error: "Usuário não encontrado ou inativo." });
     return;
   }
 
   res.json(user);
+});
+
+router.get("/usuarios", requireAuth, async (req: AuthRequest, res) => {
+  if (req.user?.role !== "ADMIN") {
+    res.status(403).json({ error: "Apenas administradores podem listar usuários." });
+    return;
+  }
+
+  const usuarios = await prisma.user.findMany({
+    select: { id: true, nome: true, email: true, role: true, status: true, createdAt: true },
+    orderBy: { createdAt: "desc" },
+  });
+
+  res.json(usuarios);
 });
 
 router.post("/usuarios", requireAuth, async (req: AuthRequest, res) => {
@@ -102,25 +126,11 @@ router.post("/usuarios", requireAuth, async (req: AuthRequest, res) => {
 
   const hash = await bcrypt.hash(senha, 10);
   const user = await prisma.user.create({
-    data: { nome, email, senha: hash, role: role ?? "VISUALIZADOR" },
-    select: { id: true, nome: true, email: true, role: true, ativo: true },
+    data: { nome, email, senha: hash, role: role ?? "VISUALIZADOR", status: "ATIVO" },
+    select: { id: true, nome: true, email: true, role: true, status: true },
   });
 
   res.status(201).json(user);
-});
-
-router.get("/usuarios", requireAuth, async (req: AuthRequest, res) => {
-  if (req.user?.role !== "ADMIN") {
-    res.status(403).json({ error: "Apenas administradores podem listar usuários." });
-    return;
-  }
-
-  const usuarios = await prisma.user.findMany({
-    select: { id: true, nome: true, email: true, role: true, ativo: true, createdAt: true },
-    orderBy: { createdAt: "desc" },
-  });
-
-  res.json(usuarios);
 });
 
 router.patch("/usuarios/:id", requireAuth, async (req: AuthRequest, res) => {
@@ -130,18 +140,18 @@ router.patch("/usuarios/:id", requireAuth, async (req: AuthRequest, res) => {
   }
 
   const id = Number(req.params.id);
-  const { nome, role, ativo, senha } = req.body;
+  const { nome, role, status, senha } = req.body;
 
   const data: Record<string, unknown> = {};
   if (nome !== undefined) data.nome = nome;
   if (role !== undefined) data.role = role;
-  if (ativo !== undefined) data.ativo = ativo;
+  if (status !== undefined) data.status = status;
   if (senha) data.senha = await bcrypt.hash(senha, 10);
 
   const user = await prisma.user.update({
     where: { id },
     data,
-    select: { id: true, nome: true, email: true, role: true, ativo: true },
+    select: { id: true, nome: true, email: true, role: true, status: true },
   });
 
   res.json(user);

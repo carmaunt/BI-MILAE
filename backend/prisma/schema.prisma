@@ -11,6 +11,12 @@ enum Role {
   VISUALIZADOR
 }
 
+enum Status {
+  PENDENTE
+  ATIVO
+  INATIVO
+}
+
 enum Faccao {
   BDM
   CV
@@ -82,7 +88,7 @@ model User {
   email     String   @unique
   senha     String
   role      Role     @default(VISUALIZADOR)
-  ativo     Boolean  @default(true)
+  status    Status   @default(PENDENTE)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
