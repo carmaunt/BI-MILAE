@@ -1,1 +1,1 @@
-export type Page = "dashboard" | "agentes";
+export type Page = "dashboard" | "agentes" | "cadastro";

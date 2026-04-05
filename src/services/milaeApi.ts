@@ -7,6 +7,7 @@
  */
 import axios from "axios";
 import type { MilaeRecord } from "../data/db";
+import type { CadastroMilaeFormData } from "../pages/Cadastro/schema";
 
 const BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3001";
 
@@ -25,5 +26,11 @@ export async function fetchMilaeRecords(): Promise<MilaeRecord[]> {
 /** Busca um único MILAE por ID */
 export async function fetchMilaeById(id: number): Promise<MilaeRecord> {
   const { data } = await api.get<MilaeRecord>(`/api/milae/${id}`);
+  return data;
+}
+
+/** Cria um novo registro de MILAE no backend */
+export async function createMilaeRecord(payload: CadastroMilaeFormData): Promise<MilaeRecord> {
+  const { data } = await api.post<MilaeRecord>("/api/milae", payload);
   return data;
 }

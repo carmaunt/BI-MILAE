@@ -185,8 +185,8 @@ export function getRankingAgentes(records: MilaeRecord[]): AgenteStat[] {
 
   records.forEach((m) => {
     m.agentes.forEach((agente) => {
-      if (!mapa[agente.nome]) {
-        mapa[agente.nome] = {
+      if (!mapa[agente.matricula]) {
+        mapa[agente.matricula] = {
           nome:             agente.nome,
           matricula:        agente.matricula,
           opm:              agente.opm,
@@ -197,7 +197,7 @@ export function getRankingAgentes(records: MilaeRecord[]): AgenteStat[] {
         };
       }
 
-      const stat = mapa[agente.nome];
+      const stat = mapa[agente.matricula];
       stat.ocorrencias      += 1;
       stat.resistentesTotal += m.resistentes.length;
 

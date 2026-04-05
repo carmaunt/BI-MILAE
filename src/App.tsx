@@ -1,3 +1,4 @@
+import CadastroPage from "./pages/Cadastro";
 import { useState } from "react";
 import Sidebar from "./components/layout/Sidebar";
 import DashboardPage from "./pages/Dashboard";
@@ -12,7 +13,9 @@ export default function App() {
       <Sidebar activePage={activePage} onNavigate={setActivePage} />
 
       <main style={{ flex: 1, background: "#f3f4f6", padding: "24px" }}>
-        {activePage === "dashboard" ? <DashboardPage /> : <AgentesPage />}
+        {activePage === "dashboard" && <DashboardPage />}
+        {activePage === "agentes" && <AgentesPage />}
+        {activePage === "cadastro" && <CadastroPage />}
       </main>
     </div>
   );

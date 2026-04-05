@@ -32,6 +32,13 @@ export default function Sidebar({ activePage, onNavigate }: SidebarProps) {
         <button style={getMenuButtonStyle(activePage === "agentes")} onClick={() => onNavigate("agentes")}>
           Agentes
         </button>
+
+        <button
+          style={getMenuButtonStyle(activePage === "cadastro")}
+          onClick={() => onNavigate("cadastro")}
+        >
+          Cadastro
+        </button>
       </nav>
     </aside>
   );
