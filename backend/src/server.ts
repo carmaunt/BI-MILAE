@@ -1,11 +1,13 @@
 import express from "express";
 import cors from "cors";
 import milaeRoutes from "./routes/milae";
+import authRoutes from "./routes/auth";
 
 const app = express();
 app.use(cors());
-
 app.use(express.json());
+
+app.use("/api/auth", authRoutes);
 app.use("/api/milae", milaeRoutes);
 
 app.get("/api/health", (req, res) => {

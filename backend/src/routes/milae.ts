@@ -1,10 +1,10 @@
 import { Router } from "express";
 import { prisma } from "../lib/prisma";
+import { requireAuth, requireAdmin } from "../middleware/auth";
 
 const router = Router();
 
-// GET /api/milae
-router.get("/", async (req, res) => {
+router.get("/", requireAuth, async (req, res) => {
   const milae = await prisma.milae.findMany({
     include: {
       agentes: {
@@ -39,8 +39,7 @@ router.get("/", async (req, res) => {
   res.json(result);
 });
 
-// POST /api/milae
-router.post("/", async (req, res) => {
+router.post("/", requireAdmin, async (req, res) => {
   try {
     const { data, hora, local, lat, lng, agentes = [], resistentes = [] } = req.body;
 

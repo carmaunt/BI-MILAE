@@ -44,6 +44,28 @@ This is a full-stack monorepo with:
 - **Resistente**: Individual killed (name, age, criminal faction, coordinates)
 - **Faccao** enum: BDM, CV, PCC, KLV, NAO_VINCULADO
 
+## Authentication
+
+JWT-based auth with two roles:
+- **ADMIN**: full access — can view, create records (Cadastro), and manage users
+- **VISUALIZADOR**: read-only — sees Dashboard and Agentes pages only
+
+Initial admin credentials:
+- E-mail: `admin@bimilae.gov.br`
+- Senha: `admin@2025`
+
+Token stored in localStorage via Zustand persist middleware.
+API proxy: Vite forwards `/api/*` to `localhost:3001` so no CORS issue in dev.
+
+User management endpoints:
+- `POST /api/auth/login` — public
+- `GET /api/auth/me` — any authenticated user
+- `GET /api/auth/usuarios` — ADMIN only
+- `POST /api/auth/usuarios` — ADMIN only
+- `PATCH /api/auth/usuarios/:id` — ADMIN only
+
+Seed new admin: `cd backend && npx tsx src/scripts/seed-admin.ts`
+
 ## Key Technologies
 
 - Material UI (MUI) v7 for UI components
