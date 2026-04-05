@@ -5,6 +5,17 @@ const BASE_URL = import.meta.env.VITE_API_URL ?? "";
 
 const api = axios.create({ baseURL: BASE_URL });
 
+export async function registrar(nome: string, email: string, senha: string): Promise<void> {
+  try {
+    await api.post("/api/auth/registrar", { nome, email, senha });
+  } catch (err: unknown) {
+    if (axios.isAxiosError(err) && err.response?.data?.error) {
+      throw new Error(err.response.data.error);
+    }
+    throw new Error("Não foi possível conectar ao servidor.");
+  }
+}
+
 export async function login(
   email: string,
   senha: string

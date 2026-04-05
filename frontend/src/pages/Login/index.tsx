@@ -2,7 +2,11 @@ import { useState } from "react";
 import { useAuthStore } from "../../store/authStore";
 import { login } from "../../services/authApi";
 
-export default function LoginPage() {
+type Props = {
+  onCadastrar: () => void;
+};
+
+export default function LoginPage({ onCadastrar }: Props) {
   const setAuth = useAuthStore((s) => s.setAuth);
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
@@ -80,6 +84,7 @@ export default function LoginPage() {
               onChange={(e) => setSenha(e.target.value)}
               required
               placeholder="••••••••"
+              autoComplete="current-password"
               style={inputStyle}
             />
           </div>
@@ -118,6 +123,10 @@ export default function LoginPage() {
             {carregando ? "Entrando..." : "Entrar"}
           </button>
         </form>
+
+        <button onClick={onCadastrar} style={linkBtnStyle}>
+          Não tem conta? Criar conta como Visualizador
+        </button>
       </div>
     </div>
   );
@@ -132,4 +141,16 @@ const inputStyle: React.CSSProperties = {
   outline: "none",
   width: "100%",
   boxSizing: "border-box",
+};
+
+const linkBtnStyle: React.CSSProperties = {
+  background: "transparent",
+  border: "none",
+  color: "#6b7280",
+  fontSize: "13px",
+  cursor: "pointer",
+  marginTop: "16px",
+  width: "100%",
+  textAlign: "center",
+  textDecoration: "underline",
 };

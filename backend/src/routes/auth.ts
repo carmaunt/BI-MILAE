@@ -6,6 +6,33 @@ import { requireAuth, type AuthRequest } from "../middleware/auth";
 
 const router = Router();
 
+router.post("/registrar", async (req, res) => {
+  const { nome, email, senha } = req.body;
+
+  if (!nome || !email || !senha) {
+    res.status(400).json({ error: "Nome, e-mail e senha são obrigatórios." });
+    return;
+  }
+
+  if (senha.length < 6) {
+    res.status(400).json({ error: "A senha deve ter pelo menos 6 caracteres." });
+    return;
+  }
+
+  const existe = await prisma.user.findUnique({ where: { email } });
+  if (existe) {
+    res.status(409).json({ error: "Já existe uma conta com esse e-mail." });
+    return;
+  }
+
+  const hash = await bcrypt.hash(senha, 10);
+  await prisma.user.create({
+    data: { nome, email, senha: hash, role: "VISUALIZADOR" },
+  });
+
+  res.status(201).json({ message: "Conta criada com sucesso. Faça login para continuar." });
+});
+
 router.post("/login", async (req, res) => {
   const { email, senha } = req.body;
 

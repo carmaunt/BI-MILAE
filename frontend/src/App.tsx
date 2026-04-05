@@ -4,15 +4,22 @@ import Sidebar from "./components/layout/Sidebar";
 import DashboardPage from "./pages/Dashboard";
 import AgentesPage from "./pages/Agentes";
 import LoginPage from "./pages/Login";
+import RegistroPage from "./pages/Registro";
 import { useAuthStore } from "./store/authStore";
 import type { Page } from "./types";
+
+type AuthView = "login" | "registro";
 
 export default function App() {
   const { isAuthenticated, user } = useAuthStore();
   const [activePage, setActivePage] = useState<Page>("dashboard");
+  const [authView, setAuthView] = useState<AuthView>("login");
 
   if (!isAuthenticated()) {
-    return <LoginPage />;
+    if (authView === "registro") {
+      return <RegistroPage onVoltar={() => setAuthView("login")} />;
+    }
+    return <LoginPage onCadastrar={() => setAuthView("registro")} />;
   }
 
   const isAdmin = user?.role === "ADMIN";
